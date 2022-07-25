@@ -20,14 +20,10 @@ class Wordy(object):
         # Guess management
         self.guess_count=0
         self.guesses=[]
-        self.known_letters = ['','','','','']
-        self.potential_letters = [[],[],[],[],[]]
-
-
     
     @staticmethod
     def get_dictionary(word_length=5):
-        filename = Path('.\words.txt')
+        filename = Path('words.txt')
         words = list(set(x.strip().upper() for x in open(filename) if len(x.strip().upper()) == word_length))
         return words
 
