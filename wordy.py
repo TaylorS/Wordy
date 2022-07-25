@@ -20,6 +20,7 @@ class Wordy(object):
         # Guess management
         self.guess_count=0
         self.guesses=[]
+        self.guess_attempts=0
     
     @staticmethod
     def get_dictionary(word_length=5):
@@ -40,6 +41,11 @@ class Wordy(object):
         self._solution = self.validate_guess(word)
 
     def guess_word(self, guess):
+        # Guess attempt counter to prevent infinite loops.
+        self.guess_attempts += 1
+        if self.guess_attempts > 50:
+            print('Attempt limit hit, game lost.')
+            self.game_state = 'lost'
         # Check if word is valid
         _cleansed_guess = self.validate_guess(guess)
         if not _cleansed_guess:
@@ -53,11 +59,11 @@ class Wordy(object):
         if _cleansed_guess == self.solution:
             print(f'Guess: {self.get_colorized_guess_str(guess)}')
             print('You got it!')
-            self.game_state = 'complete'
+            self.game_state = 'win'
         else:
             print(f'Guess: {self.get_colorized_guess_str(guess)} - Nope!')
             self.check_state()
-            return _cleansed_guess
+            return self.get_letter_hints
     
     def get_letter_hints(self, guess):
         letter_hints = []
@@ -104,7 +110,7 @@ class Wordy(object):
     def check_state(self):
         if self.guess_count >= self.max_guesses:
             print("Awful!")
-            self.game_state = 'complete'
+            self.game_state = 'lost'
        
     def validate_guess(self, word):
         _cleansed_guess = word.upper()
@@ -121,6 +127,7 @@ class Wordy(object):
             print(f'Already guessed {_cleansed_guess}. Pick a new word.')
             return False
 
+        # Check if word is in word list
         if _cleansed_guess in self.words:
             return _cleansed_guess
         else:
@@ -129,11 +136,13 @@ class Wordy(object):
 
 
 def run_tests():
+    # Run simple tests to see that things generally work
+
     debug = True
     # Guess random words
     game = Wordy()
     words = Wordy.get_dictionary()
-    while (game.game_state != 'complete'):
+    while (game.game_state == 'playing'):
         if debug:
             guess = Wordy.get_random_word(words)
         else:
@@ -145,8 +154,7 @@ def run_tests():
     game = Wordy()
     words = Wordy.get_dictionary()
     loop_count = 0
-    while (game.game_state != 'complete'):
-
+    while (game.game_state == 'playing'):
         if debug:
             if loop_count >= len(test_guesses):
                 break
@@ -163,7 +171,7 @@ def run_tests():
     game.solution = 'ABACK'
     words = Wordy.get_dictionary()
     loop_count = 0
-    while (game.game_state != 'complete'):
+    while (game.game_state == 'playing'):
         if debug:
             if loop_count >= len(test_guesses):
                 break
@@ -180,7 +188,7 @@ def run_tests():
     game.solution = 'STATS'
     words = Wordy.get_dictionary()
     loop_count = 0
-    while (game.game_state != 'complete'):
+    while (game.game_state == 'playing'):
         if debug:
             guess = test_guesses[loop_count]
         else:
