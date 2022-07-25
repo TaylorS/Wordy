@@ -2,8 +2,6 @@ from pathlib import Path
 from random import randint
 from collections import namedtuple
 
-LetterHint = namedtuple('LetterHint', ['letter', 'color', 'position', 'in_position', 'in_solution'])
-
 class colors:
     GREEN = '\u001b[32m'
     YELLOW = '\u001b[33m'
@@ -56,15 +54,18 @@ class Wordy(object):
         self.guess_count += 1
         self.guesses.append(_cleansed_guess)
 
+        # Create guess object to return to palyer
+        guess_results = Guess(_cleansed_guess, self.get_letter_hints(_cleansed_guess))
+
         # Check word agianst solution
         if _cleansed_guess == self.solution:
-            self.log(f'Guess: {self.get_colorized_guess_str(guess)}')
+            self.log(f'Guess: {guess_results}')
             self.log('You got it!')
             self.game_state = 'win'
         else:
-            self.log(f'Guess: {self.get_colorized_guess_str(guess)} - Nope!')
+            self.log(f'Guess: {guess_results} - Nope!')
             self.check_state()
-            return self.get_letter_hints
+            return guess_results
     
     def get_letter_hints(self, guess):
         letter_hints = []
@@ -101,13 +102,6 @@ class Wordy(object):
             letter_counts[l] += 1
         return letter_counts
 
-    def get_colorized_guess_str(self, guess):
-        lh = self.get_letter_hints(guess)
-        guess_str = ''
-        for l in lh:
-            guess_str += l.color + l.letter
-        return guess_str + colors.WHITE
-
     def check_state(self):
         if self.guess_count >= self.max_guesses:
             self.log("Awful!")
@@ -139,6 +133,26 @@ class Wordy(object):
         if not self.silent_mode:
             print(message)
 
+
+class Guess(object):
+
+    def __init__(self, word, letter_hints):
+        self.word = word
+        self.letter_hints = letter_hints
+
+    def __repr__(self) -> str:
+        repr=f'{self.word}'
+        for lh in self.letter_hints:
+            repr += f'    letter: {lh.letter}\n    position: {lg.position}\n    in_position: {lh.in_position}\n    in_solution: {lh.in_solution}'
+        return repr
+    
+    def __str__(self) -> str:
+        guess_str = ''
+        for l in self.letter_hints:
+            guess_str += l.color + l.letter
+        return guess_str + colors.WHITE
+
+LetterHint = namedtuple('LetterHint', ['letter', 'color', 'position', 'in_position', 'in_solution'])
 
 def run_tests():
     # Run simple tests to see that things generally work
