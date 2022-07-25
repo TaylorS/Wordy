@@ -10,12 +10,13 @@ class colors:
     WHITE = '\u001b[37m'
 
 class Wordy(object):
-    def __init__(self, max_guesses=6) -> None:
+    def __init__(self, max_guesses=6, silent_mode=True) -> None:
         # Game setup
         self.words=self.get_dictionary()
         self.max_guesses=max_guesses
         self._solution=self.get_random_word(self.words)
         self.game_state='playing'
+        self.silent_mode = silent_mode
 
         # Guess management
         self.guess_count=0
@@ -44,7 +45,7 @@ class Wordy(object):
         # Guess attempt counter to prevent infinite loops.
         self.guess_attempts += 1
         if self.guess_attempts > 50:
-            print('Attempt limit hit, game lost.')
+            self.log('Attempt limit hit, game lost.')
             self.game_state = 'lost'
         # Check if word is valid
         _cleansed_guess = self.validate_guess(guess)
@@ -57,11 +58,11 @@ class Wordy(object):
 
         # Check word agianst solution
         if _cleansed_guess == self.solution:
-            print(f'Guess: {self.get_colorized_guess_str(guess)}')
-            print('You got it!')
+            self.log(f'Guess: {self.get_colorized_guess_str(guess)}')
+            self.log('You got it!')
             self.game_state = 'win'
         else:
-            print(f'Guess: {self.get_colorized_guess_str(guess)} - Nope!')
+            self.log(f'Guess: {self.get_colorized_guess_str(guess)} - Nope!')
             self.check_state()
             return self.get_letter_hints
     
@@ -109,7 +110,7 @@ class Wordy(object):
 
     def check_state(self):
         if self.guess_count >= self.max_guesses:
-            print("Awful!")
+            self.log("Awful!")
             self.game_state = 'lost'
        
     def validate_guess(self, word):
@@ -124,15 +125,19 @@ class Wordy(object):
         
         # Check the word hasn't already been guessed.
         if _cleansed_guess in self.guesses:
-            print(f'Already guessed {_cleansed_guess}. Pick a new word.')
+            self.log(f'Already guessed {_cleansed_guess}. Pick a new word.')
             return False
 
         # Check if word is in word list
         if _cleansed_guess in self.words:
             return _cleansed_guess
         else:
-            print(f'{_cleansed_guess} not found, try agian.')
+            self.log(f'{_cleansed_guess} not found, try agian.')
             return False
+
+    def log(self, message):
+        if not self.silent_mode:
+            print(message)
 
 
 def run_tests():
@@ -140,7 +145,7 @@ def run_tests():
 
     debug = True
     # Guess random words
-    game = Wordy()
+    game = Wordy(silent_mode=False)
     words = Wordy.get_dictionary()
     while (game.game_state == 'playing'):
         if debug:
@@ -151,7 +156,7 @@ def run_tests():
     
     # Guess fixed guesses and solution to failure
     test_guesses = ['WORDY', 'ABACK', 'ABASE', 'ABATE', 'ABATE', 'ABBEY', 'ABBOT']
-    game = Wordy()
+    game = Wordy(silent_mode=False)
     words = Wordy.get_dictionary()
     loop_count = 0
     while (game.game_state == 'playing'):
@@ -167,7 +172,7 @@ def run_tests():
 
     # Guess fixed guesses and solution to success
     test_guesses = ['WORDY', 'ABACK']
-    game = Wordy()
+    game = Wordy(silent_mode=False)
     game.solution = 'ABACK'
     words = Wordy.get_dictionary()
     loop_count = 0
@@ -184,7 +189,7 @@ def run_tests():
 
      # Guess fixed guesses and solution to success
     test_guesses = ['CRANE', 'SMART', 'START', 'STABS', 'STTTS', 'STATS']
-    game = Wordy()
+    game = Wordy(silent_mode=False)
     game.solution = 'STATS'
     words = Wordy.get_dictionary()
     loop_count = 0
@@ -195,6 +200,18 @@ def run_tests():
             guess = input('Guess a word: ')
         game.guess_word(guess)
         loop_count += 1
+    
+    # Guess limit test and test silent mode
+    test_guesses = ['BLERG']
+    game = Wordy(silent_mode=True)
+    words = Wordy.get_dictionary()
+    while (game.game_state == 'playing'):
+        if debug:
+            guess = test_guesses[0]
+        else:
+            guess = input('Guess a word: ')
+        game.guess_word(guess)
+    print('Infinite loop terminated.')
     
 if __name__ == '__main__':
     run_tests()
