@@ -141,9 +141,9 @@ class Guess(object):
         self.letter_hints = letter_hints
 
     def __repr__(self) -> str:
-        repr=f'{self.word}'
+        repr=f'{self.word}: '
         for lh in self.letter_hints:
-            repr += f'    letter: {lh.letter}\n    position: {lg.position}\n    in_position: {lh.in_position}\n    in_solution: {lh.in_solution}'
+            repr += f' letter: {lh.letter} - position: {lh.position} - in_position: {lh.in_position} - in_solution: {lh.in_solution}\n'
         return repr
     
     def __str__(self) -> str:
