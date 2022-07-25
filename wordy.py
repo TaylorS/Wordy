@@ -1,6 +1,14 @@
 from pathlib import Path
 from random import randint
-from collections import namedtuple
+from dataclasses import dataclass
+
+@dataclass
+class LetterHint:
+    letter: str
+    color: str
+    position: int
+    in_position: bool
+    in_solution: bool
 
 class colors:
     GREEN = '\u001b[32m'
@@ -28,7 +36,7 @@ class Wordy(object):
         return words
 
     @staticmethod
-    def get_random_word(words):
+    def get_random_word(words: list[str]):
         return words[randint(0,len(words)-1)]    
 
     @property
@@ -36,10 +44,10 @@ class Wordy(object):
         return self._solution
 
     @solution.setter
-    def solution(self, word):
+    def solution(self, word: str) -> None:
         self._solution = self.validate_guess(word)
 
-    def guess_word(self, guess):
+    def guess_word(self, guess: str):
         # Guess attempt counter to prevent infinite loops.
         self.guess_attempts += 1
         if self.guess_attempts > 50:
@@ -67,7 +75,7 @@ class Wordy(object):
             self.check_state()
             return guess_results
     
-    def get_letter_hints(self, guess):
+    def get_letter_hints(self, guess: str):
         letter_hints = []
 
         # Get letter counts for double letters
@@ -96,18 +104,18 @@ class Wordy(object):
         return letter_hints
     
     @staticmethod
-    def get_letter_counts(word):
+    def get_letter_counts(word: str) -> dict:
         letter_counts = dict.fromkeys(word, 0)
         for l in word:
             letter_counts[l] += 1
         return letter_counts
 
-    def check_state(self):
+    def check_state(self) -> None:
         if self.guess_count >= self.max_guesses:
             self.log("Awful!")
             self.game_state = 'lost'
        
-    def validate_guess(self, word):
+    def validate_guess(self, word: str) -> str:
         _cleansed_guess = word.upper()
         # Check there are no numbers and no special characters
         if not _cleansed_guess.isalpha():
@@ -129,14 +137,14 @@ class Wordy(object):
             self.log(f'{_cleansed_guess} not found, try agian.')
             return False
 
-    def log(self, message):
+    def log(self, message: str):
         if not self.silent_mode:
             print(message)
 
 
 class Guess(object):
 
-    def __init__(self, word, letter_hints):
+    def __init__(self, word: str, letter_hints: list[LetterHint]):
         self.word = word
         self.letter_hints = letter_hints
 
@@ -151,8 +159,6 @@ class Guess(object):
         for l in self.letter_hints:
             guess_str += l.color + l.letter
         return guess_str + colors.WHITE
-
-LetterHint = namedtuple('LetterHint', ['letter', 'color', 'position', 'in_position', 'in_solution'])
 
 def run_tests():
     # Run simple tests to see that things generally work
