@@ -161,3 +161,7 @@ cython_debug/
 
 # VS Code
 .vscode/
+build_word_list.py
+raw_word_list.txt
+main.py
+todo.md
