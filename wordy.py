@@ -36,7 +36,7 @@ class Wordy(object):
         return words
 
     @staticmethod
-    def get_random_word(words: list[str]):
+    def get_random_word(words: 'list[str]'):
         return words[randint(0,len(words)-1)]    
 
     @property
@@ -144,7 +144,7 @@ class Wordy(object):
 
 class Guess(object):
 
-    def __init__(self, word: str, letter_hints: list[LetterHint]):
+    def __init__(self, word: str, letter_hints: 'list[LetterHint]'):
         self.word = word
         self.letter_hints = letter_hints
 
