@@ -11,6 +11,7 @@ class Player(object):
     def play_game(self, guesser):
         for _ in range(self.tries):
             game = Wordy(silent_mode=True)
+            # game = Wordy(silent_mode=False)
             guess_hints = []
             while (game.game_state == 'playing'):
                 guess = guesser(self.words, guess_hints)
